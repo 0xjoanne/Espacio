@@ -8,7 +8,10 @@ const state = {
   userLocation: {
     lat: 43.647248,
     lng: -79.403388
-  }
+  },
+  connect: false,
+  parking: null,
+  parkingMock: null,
 }
 
 const mutations = {
@@ -20,6 +23,18 @@ const mutations = {
   },
   DECREMENT (state) {
     state.count--
+  },
+  SOCKET_CONNECT (state,  status ) {
+    console.log('MUTATION SOCKET CONNECT')
+    state.connect = true;
+  },
+  SOCKET_DATA (state,data) {
+    console.log(data);
+    state.parkingMock = data;
+  },
+  SOCKET_PARKING_CHANGE (state,data) {
+    console.log(data);
+    state.parking = data;
   }
 }
 
@@ -27,7 +42,7 @@ const actions = {
   incrementAsync ({ commit }) {
     setTimeout(() => {
       commit('INCREMENT')
-    }, 200)
+  }, 200)
   }
 }
 
@@ -36,5 +51,6 @@ const store = new Vuex.Store({
   mutations,
   actions
 })
+
 
 export default store
