@@ -4,7 +4,7 @@
       :center="center"
       :zoom="zoomValue"
       :options="{ styles: styles, disableDefaultUI: true}"
-      style="width: 100vw; height: 100vh"
+      :style="{width: mapWidth, height: mapHeight}"
       ref="map"
     >
       <gmap-marker
@@ -19,21 +19,17 @@
       ></gmap-marker>
     </gmap-map>
 
-    <div class="action__btns position-absolute">
-      <button type="button" name="button" class="zoom-btn zoom-in" @click="zoomin">
-        <img :src="zoominSrc" alt="">
-      </button>
-      <button type="button" name="button" class="zoom-btn zoom-out" @click="zoomout">
-        <img :src="zoomoutSrc" alt="">
-      </button>
-      <button type="button" name="button" class="target-btn" @click="getUserLocation">
-        <img src="../assets/img/target.png" alt="">
-      </button>
+    <div v-if="isDetailMode">
+      <detail></detail>
+
+      <button type="button" name="button" class="direction-btn position-absolute" @click="getDirection"></button>
     </div>
+
+    <action-btns @get-user-location="getUserLocation" v-else></action-btns>
 
     <search-bar class="position-absolute" @on-close="onClose" ref="searchbar" v-if="isResultMode"></search-bar>
 
-    <button type="button" name="button" class="back-btn position-absolute" @click="getDetails" v-else></button>
+    <button type="button" name="button" class="back-btn position-absolute" @click="backToPrev" v-show="!isResultMode"></button>
 
     <div class="mask position-absolute" v-show="showMask" @click="toggleMask"></div>
 
@@ -45,16 +41,14 @@
 <script>
 import SearchBar from 'components/SearchBar'
 import Sidebar from 'components/Sidebar'
+import ActionBtns from 'components/ActionBtns'
+import Detail from 'components/Detail'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import Vue from 'vue'
 import VueLocalStorage from 'vue-localstorage'
 
 Vue.use(VueLocalStorage)
 
-const zoominImg = require('../assets/img/zoomin.png')
-const zoominHoverImg = require('../assets/img/zoomin-hover.png')
-const zoomoutImg = require('../assets/img/zoomout.png')
-const zoomoutHoverImg = require('../assets/img/zoomout-hover.png')
 const activeMarkerImg = require('../assets/img/active-marker.png')
 const inactiveMarkerImg = require('../assets/img/inactive-marker.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
@@ -79,11 +73,14 @@ export default {
   },
   components: {
     SearchBar,
-    Sidebar
+    Sidebar,
+    ActionBtns,
+    Detail
   },
   data(){
     return {
-      isResultMode:  true,
+      mapWidth: "100vw",
+      mapHeight: "100vh",
       zoomValue: 15,
       showSidebar: false,
       styles:[
@@ -132,24 +129,14 @@ export default {
         title: "parking"
       }],
       showMask: false,
-      zoominSrc: zoominImg,
-      zoomoutSrc: zoomoutImg,
-      latLng: {}
+      latLng: {},
+      isDetailMode: false,
+      isResultMode: true
     }
   },
   methods:{
     onClose () {
       this.showSidebar = !this.showSidebar
-    },
-    zoomin(){
-      if(this.zoomValue < 20){
-        ++this.zoomValue
-      }
-    },
-    zoomout(){
-      if(this.zoomValue){
-        --this.zoomValue
-      }
     },
     toggleMask(){
       if(this.showSidebar){
@@ -160,11 +147,25 @@ export default {
       this.showMask = false
     },
     showDetails(index, marker){
-      var lastIndex = this.markers.length - 1
-      if(index !== lastIndex){
-        var lat = marker.position.lat
-        var lng = marker.position.lng
-        this.$router.push('/details?lat=' + lat + '&lng=' + lng)
+      this.mapHeight = "35vh"
+      this.$refs.map.resize()
+      this.isDetailMode = true
+      this.isResultMode = false
+      this.center = {
+        lat: marker.position.lat,
+        lng: marker.position.lng
+      }
+    },
+    backToPrev(){
+      if(this.isDetailMode){
+        this.mapHeight = "100vh"
+        this.isDetailMode = false
+        this.isResultMode = true
+        let currentLocation = this.$localStorage.get('userLocation')
+        this.center = {
+          lat: currentLocation.lat,
+          lng: currentLocation.lng
+        }
       }
     },
     getUserLocation(){
@@ -183,20 +184,10 @@ export default {
       this.$localStorage.set('userLocation', this.latLng)
       this.addNewMarker(this.latLng)
     },
-    getDirection(){
+    getDirection(start, end){
       var directionsService = new google.maps.DirectionsService
-      var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions: {
-          strokeColor: "#21D331"
-        }
-      })
+      var directionsDisplay = new google.maps.DirectionsRenderer
       directionsDisplay.setMap(this.$refs.map.$mapObject)
-      let currentLocation = this.$localStorage.get('userLocation')
-      let parkingLat = this.$route.query.lat
-      let parkingLng = this.$route.query.lng
-      var start = new google.maps.LatLng(currentLocation.lat, currentLocation.lng)
-      var end = new google.maps.LatLng(parkingLat,parkingLng)
       directionsService.route({
         origin: start,
         destination: end,
@@ -206,14 +197,6 @@ export default {
           directionsDisplay.setDirections(response);
         } else {
           window.alert('Directions request failed due to ' + status);
-        }
-      })
-      var self = this
-      this.markers.forEach(function(item, index){
-        if(item.title === "parking"){
-          if(!(item.position.lat === Number(parkingLat)  && item.position.lng === Number(parkingLng))){
-            self.markers.splice(index, 1)
-          }
         }
       })
     },
@@ -233,23 +216,6 @@ export default {
       let currentLocation = this.$localStorage.get('userLocation')
       this.center = currentLocation
       this.addNewMarker(currentLocation)
-    },
-    getDetails(){
-      let parkingLat = this.$route.query.lat
-      let parkingLng = this.$route.query.lng
-      this.$router.push('/details?lat=' + parkingLat + '&lng=' + parkingLng)
-    }
-  },
-  watch:{
-    zoomValue(val){
-      if(val > 19){
-        this.zoominSrc = zoominHoverImg
-      }else if(val < 1){
-        this.zoomoutSrc = zoomoutHoverImg
-      }else{
-        this.zoominSrc = zoominImg
-        this.zoomoutSrc = zoomoutImg
-      }
     }
   },
   mounted(){
@@ -263,8 +229,9 @@ export default {
       this.checkGoogle = setInterval(function () {
         if (window.google) {
           clearInterval(_this.checkGoogle)
-          _this.getDirection()
-          _this.isResultMode = false
+          var start = new google.maps.LatLng(43.647248, -79.403388);
+          var end = new google.maps.LatLng(43.652898, -79.396678);
+          _this.getDirection(start, end)
         }
       }, 10)
 
@@ -279,6 +246,9 @@ export default {
 <style>
   .result{
     position: relative;
+  }
+  .vue-map-container{
+    transition: all 0.5s;
   }
   .search-bar{
     top: 35px;
@@ -295,21 +265,9 @@ export default {
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
   }
-  .action__btns{
-    right: 25px;
-    bottom: 35px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .zoom-btn{
-    width: 54px;
-    height: 54px;
-  }
-  .target-btn{
-    width: 70px;
-    height: 70px;
-  }
+
+
+  /* autocomplete dropdown */
   .pac-container{
     width: 88% !important;
     margin-left: auto;

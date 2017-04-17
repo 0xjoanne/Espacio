@@ -65,9 +65,9 @@
     <router-link to="/result" class="back-btn position-absolute">
     </router-link>
 
-    <router-link to="/result?action=getDirection" class="direction-btn position-absolute">
-    </router-link>
-    <!-- <button type="button" name="button" class="direction-btn position-absolute"></button> -->
+    <!-- <router-link to="/result?action=getDirection" class="direction-btn position-absolute">
+    </router-link> -->
+    <button type="button" name="button" class="direction-btn position-absolute" @click="getDirection"></button>
   </div>
 </template>
 
@@ -100,6 +100,12 @@ export default {
         {"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#fefefe"},{"lightness":17},{"weight":1.2}]}],
       center: {lat: 43.6529122, lng: -79.4003388},
       markers: []
+    }
+  },
+  methods:{
+    getDirection(){
+      var query = this.$route.query
+      this.$router.push('/result?action=getDirection&lat=' + Number(query.lat) + '&lng=' + Number(query.lng))
     }
   },
   mounted(){
