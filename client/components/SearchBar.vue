@@ -3,7 +3,7 @@
     <button type="button" name="button" class="searchbar__btn" @click="showSidebar">
       <img :src="rightBtnSrc" alt="">
     </button>
-    <label for="" v-if="!isEntering" class="searchbar__label searchbar__info" @click="changeLocation">Your Current Location</label>
+    <label for="" v-if="!isEntering" class="searchbar__label searchbar__info" @click="changeLocation">{{ labelContent }}</label>
     <gmap-autocomplete @place_changed="setPlace" class="searchbar__input searchbar__info" ref="input" @click.native="" v-else>
     </gmap-autocomplete>
 
@@ -24,6 +24,12 @@ const backImg = require('../assets/img/back.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
 
 export default {
+  props:{
+    labelContent:{
+      type: String,
+      default: "Your Current Location"
+    }
+  },
   data(){
     return{
       latLng: {},
@@ -58,6 +64,7 @@ export default {
         lng: place.geometry.location.lng()
       }
       this.$parent.center = this.latLng
+      this.$emit('update-searchbar-label', this.latLng)
       var userLocation = {
         position: this.latLng,
         icon: centerMarkerImg,

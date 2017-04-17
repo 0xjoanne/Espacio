@@ -12,28 +12,16 @@
         :key="index"
         :position="marker.position"
         :draggable="false"
-        @click="showDetails(index, marker)"
+        @click="showDetail(index, marker)"
         :icon="marker.icon"
         :label="marker.label"
         cursor="pointer"
       ></gmap-marker>
     </gmap-map>
 
-    <div class="action__btns position-absolute">
-      <button type="button" name="button" class="zoom-btn zoom-in" @click="zoomin">
-        <img :src="zoominSrc" alt="">
-      </button>
-      <button type="button" name="button" class="zoom-btn zoom-out" @click="zoomout">
-        <img :src="zoomoutSrc" alt="">
-      </button>
-      <button type="button" name="button" class="target-btn" @click="getUserLocation">
-        <img src="../assets/img/target.png" alt="">
-      </button>
-    </div>
+    <action-btns @get-user-location="getUserLocation" :is-show="true"></action-btns>
 
-    <search-bar class="position-absolute" @on-close="onClose" ref="searchbar" v-if="isResultMode"></search-bar>
-
-    <button type="button" name="button" class="back-btn position-absolute" @click="getDetails" v-else></button>
+    <search-bar class="position-absolute" @on-close="onClose" ref="searchbar" :label-content="userAddress" @update-searchbar-label="updateSearchbarLabel"></search-bar>
 
     <div class="mask position-absolute" v-show="showMask" @click="toggleMask"></div>
 
@@ -45,16 +33,13 @@
 <script>
 import SearchBar from 'components/SearchBar'
 import Sidebar from 'components/Sidebar'
+import ActionBtns from 'components/ActionBtns'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import Vue from 'vue'
 import VueLocalStorage from 'vue-localstorage'
 
 Vue.use(VueLocalStorage)
 
-const zoominImg = require('../assets/img/zoomin.png')
-const zoominHoverImg = require('../assets/img/zoomin-hover.png')
-const zoomoutImg = require('../assets/img/zoomout.png')
-const zoomoutHoverImg = require('../assets/img/zoomout-hover.png')
 const activeMarkerImg = require('../assets/img/active-marker.png')
 const inactiveMarkerImg = require('../assets/img/inactive-marker.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
@@ -72,20 +57,19 @@ export default {
     userLocation: {
       type: Object,
       default: {
-        lat: 43.647248,
-        lng: -79.403388
+        lat: 43.729159,
+        lng: -79.606545
       }
     }
   },
   components: {
     SearchBar,
-    Sidebar
+    Sidebar,
+    ActionBtns
   },
   data(){
     return {
-      isResultMode:  true,
       zoomValue: 15,
-      showSidebar: false,
       styles:[
         {"featureType":"water","elementType":"geometry","stylers":[{"color":"#e9e9e9"},{"lightness":17}]},
         {"featureType":"landscape","elementType":"geometry","stylers":[{"color":"#f5f5f5"},{"lightness":20}]},
@@ -101,12 +85,21 @@ export default {
         {"featureType":"transit","elementType":"geometry","stylers":[{"color":"#f2f2f2"},{"lightness":19}]},
         {"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#fefefe"},{"lightness":20}]},
         {"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#fefefe"},{"lightness":17},{"weight":1.2}]}],
-      center: {lat: 43.647248, lng: -79.403388},
-      markers: [{
-        position: {lat: 43.649266, lng: -79.400320},
-        icon: activeMarkerImg,
+      center: {lat: 43.729159, lng: -79.606545},
+      markers: [],
+      showSidebar: false,
+      showMask: false,
+      latLng: {},
+      userAddress: "Your Current Location"
+    }
+  },
+  methods:{
+    createMarkers(){
+      this.markers = [{
+        position: {lat: 43.732554, lng: -79.611481},
+        icon: inactiveMarkerImg,
         label: {
-          text: '24',
+          text: ' ',
           color: "white",
           fontWeight: "700",
           fontSize: "24px",
@@ -114,7 +107,7 @@ export default {
         },
         title: "parking"
       },{
-        position: {lat: 43.652898, lng: -79.396678},
+        position: {lat: 43.730724, lng: -79.598520},
         icon: {
           url: activeMarkerImg
         },
@@ -127,29 +120,13 @@ export default {
         },
         title: "parking"
       },{
-        position: {lat: 43.642682, lng: -79.399204},
+        position: {lat: 43.720916, lng: -79.599413},
         icon: inactiveMarkerImg,
         title: "parking"
-      }],
-      showMask: false,
-      zoominSrc: zoominImg,
-      zoomoutSrc: zoomoutImg,
-      latLng: {}
-    }
-  },
-  methods:{
-    onClose () {
+      }]
+    },
+    onClose(){
       this.showSidebar = !this.showSidebar
-    },
-    zoomin(){
-      if(this.zoomValue < 20){
-        ++this.zoomValue
-      }
-    },
-    zoomout(){
-      if(this.zoomValue){
-        --this.zoomValue
-      }
     },
     toggleMask(){
       if(this.showSidebar){
@@ -159,12 +136,12 @@ export default {
       }
       this.showMask = false
     },
-    showDetails(index, marker){
+    showDetail(index, marker){
       var lastIndex = this.markers.length - 1
       if(index !== lastIndex){
         var lat = marker.position.lat
         var lng = marker.position.lng
-        this.$router.push('/details?lat=' + lat + '&lng=' + lng)
+        this.$router.push('/detail?lat=' + lat + '&lng=' + lng)
       }
     },
     getUserLocation(){
@@ -179,43 +156,15 @@ export default {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       }
+      this.updateSearchbarLabel(this.latLng)
       this.center = this.latLng
       this.$localStorage.set('userLocation', this.latLng)
       this.addNewMarker(this.latLng)
     },
-    getDirection(){
-      var directionsService = new google.maps.DirectionsService
-      var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions: {
-          strokeColor: "#21D331"
-        }
-      })
-      directionsDisplay.setMap(this.$refs.map.$mapObject)
+    updateUserMarker(){
       let currentLocation = this.$localStorage.get('userLocation')
-      let parkingLat = this.$route.query.lat
-      let parkingLng = this.$route.query.lng
-      var start = new google.maps.LatLng(currentLocation.lat, currentLocation.lng)
-      var end = new google.maps.LatLng(parkingLat,parkingLng)
-      directionsService.route({
-        origin: start,
-        destination: end,
-        travelMode: 'DRIVING'
-      }, function(response, status) {
-        if (status === 'OK') {
-          directionsDisplay.setDirections(response);
-        } else {
-          window.alert('Directions request failed due to ' + status);
-        }
-      })
-      var self = this
-      this.markers.forEach(function(item, index){
-        if(item.title === "parking"){
-          if(!(item.position.lat === Number(parkingLat)  && item.position.lng === Number(parkingLng))){
-            self.markers.splice(index, 1)
-          }
-        }
-      })
+      this.center = currentLocation
+      this.addNewMarker(currentLocation)
     },
     addNewMarker(currentLocation){
       var userLocationMarker = {
@@ -229,28 +178,47 @@ export default {
       }
       this.markers.push(userLocationMarker)
     },
-    updateUserMarker(){
-      let currentLocation = this.$localStorage.get('userLocation')
-      this.center = currentLocation
-      this.addNewMarker(currentLocation)
-    },
-    getDetails(){
-      let parkingLat = this.$route.query.lat
-      let parkingLng = this.$route.query.lng
-      this.$router.push('/details?lat=' + parkingLat + '&lng=' + parkingLng)
+    updateSearchbarLabel(coords){
+      var geocoder = new google.maps.Geocoder
+      var self = this
+      geocoder.geocode({'location': coords}, function(results, status) {
+        if (status === 'OK') {
+          if (results[1]) {
+            self.userAddress = results[1].address_components[0].long_name
+          } else {
+            self.userAddress = "Your Current Location"
+          }
+        } else {
+          self.userAddress = "Your Current Location"
+        }
+      })
     }
   },
   watch:{
-    zoomValue(val){
-      if(val > 19){
-        this.zoominSrc = zoominHoverImg
-      }else if(val < 1){
-        this.zoomoutSrc = zoomoutHoverImg
-      }else{
-        this.zoominSrc = zoominImg
-        this.zoomoutSrc = zoomoutImg
+    parkingLeft(val){
+      if(this.$refs.map.$children[0].$markerObject){
+        var marker = this.$refs.map.$children[0].$markerObject
+        var label = marker.getLabel()
+        if(val === 0){
+          marker.icon = inactiveMarkerImg
+          label.text = ' '
+        }else{
+          marker.icon = activeMarkerImg
+          label.text = val+''
+        }
+        marker.setLabel(label)
       }
     }
+  },
+  computed:{
+    parkingLeft(){
+      if(this.$store.state.parkingMock){
+        return this.$store.state.parkingMock.left
+      }
+    }
+  },
+  created(){
+    this.createMarkers()
   },
   mounted(){
     var query = this.$route.query.action
@@ -258,17 +226,6 @@ export default {
       this.getUserLocation()
     }else if(query === "enterLocation"){
       this.$refs.searchbar.isEntering = true
-    }else if(query === "getDirection"){
-      const _this = this
-      this.checkGoogle = setInterval(function () {
-        if (window.google) {
-          clearInterval(_this.checkGoogle)
-          _this.getDirection()
-          _this.isResultMode = false
-        }
-      }, 10)
-
-      this.updateUserMarker()
     }else{
       this.updateUserMarker()
     }

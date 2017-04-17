@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '../views/Home'
 import Result from '../views/Result'
-import Details from '../views/Details'
+import Detail from '../views/Detail'
+import Direction from '../views/Direction'
 
 Vue.use(Router)
 
@@ -18,8 +19,12 @@ export default new Router({
       component: Result
     },
     {
-      path: '/details',
-      component: Details
+      path: '/detail',
+      component: Detail
+    },
+    {
+      path: '/direction',
+      component: Direction
     }
   ]
 })

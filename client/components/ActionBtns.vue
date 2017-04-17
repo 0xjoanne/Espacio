@@ -6,7 +6,7 @@
     <button type="button" name="button" class="zoom-btn zoom-out" @click="zoomout">
       <img :src="zoomoutSrc" alt="">
     </button>
-    <button type="button" name="button" class="target-btn" @click="getUserLocation">
+    <button type="button" name="button" class="target-btn" @click="getUserLocation" v-show="isShow">
       <img src="../assets/img/target.png" alt="">
     </button>
   </div>
@@ -20,10 +20,15 @@ const zoomoutHoverImg = require('../assets/img/zoomout-hover.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
 
 export default {
+  props: {
+    isShow: {
+      type: Boolean
+    }
+  },
   data(){
     return{
       zoominSrc: zoominImg,
-      zoomoutSrc: zoomoutImg,
+      zoomoutSrc: zoomoutImg
     }
   },
   methods:{

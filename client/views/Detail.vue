@@ -1,5 +1,5 @@
 <template>
-  <div class="details">
+  <div class="detail">
     <gmap-map
       :center="center"
       :zoom="zoomValue"
@@ -19,30 +19,30 @@
         cursor="pointer"
       ></gmap-marker>
     </gmap-map>
-    <div class="details__content">
-      <div class="details__data">
-        <h3 class="details__title">Impark</h3>
-        <p class="details__address">130 Adelaide St W, Toronto, ON M5H 3P5</p>
-        <ul class="details__list">
-          <li class="details__item">
-            <p class="item__value">10/50</p>
+    <div class="detail__content">
+      <div class="detail__data">
+        <h3 class="detail__title">Impark</h3>
+        <p class="detail__address">130 Adelaide St W, Toronto, ON M5H 3P5</p>
+        <ul class="detail__list">
+          <li class="detail__item">
+            <p class="item__value">{{ parkingLeft }}/{{ parkingSpace }}</p>
             <p class="item__title">Avaibale</p>
           </li>
-          <li class="details__item">
+          <li class="detail__item">
             <p class="item__value">$5/h</p>
             <p class="item__title">Price</p>
           </li>
-          <li class="details__item">
+          <li class="detail__item">
             <p class="item__value">11min</p>
             <p class="item__title">Time</p>
           </li>
-          <li class="details__item">
+          <li class="detail__item">
             <p class="item__value">3.5km</p>
             <p class="item__title">Distance</p>
           </li>
         </ul>
       </div>
-      <div class="details__chart">
+      <div class="detail__chart">
         <div class="select-wrapper">
           <select class="day-picker" name="">
             <option value="Monday">Monday</option>
@@ -59,7 +59,7 @@
           <span class="live-label">Live</span> A little busy
         </p>
 
-        <bar-chart class="details__canvas"></bar-chart>
+        <bar-chart class="detail__canvas"></bar-chart>
       </div>
     </div>
     <router-link to="/result" class="back-btn position-absolute">
@@ -105,7 +105,23 @@ export default {
   methods:{
     getDirection(){
       var query = this.$route.query
-      this.$router.push('/result?action=getDirection&lat=' + Number(query.lat) + '&lng=' + Number(query.lng))
+      this.$router.push('/direction?lat=' + query.lat + '&lng=' + query.lng)
+    }
+  },
+  computed:{
+    parkingLeft(){
+      if(this.$store.state.parkingMock){
+        return this.$store.state.parkingMock.left
+      }else{
+        return 0
+      }
+    },
+    parkingSpace(){
+      if(this.$store.state.parkingMock){
+        return this.$store.state.parkingMock.space
+      }else{
+        return 0
+      }
     }
   },
   mounted(){
@@ -126,18 +142,18 @@ export default {
 </script>
 
 <style>
-  .details__content{
+  .detail__content{
     width: 100vw;
     height: 65vh;
   }
-  .details__data{
+  .detail__data{
     border-bottom: 1px solid #eee;
   }
-  .details__title,
-  .details__address{
+  .detail__title,
+  .detail__address{
     line-height: 36px;
   }
-  .details__list{
+  .detail__list{
     display: flex;
     justify-content: space-between;
     text-align: center;
@@ -150,8 +166,8 @@ export default {
   .item__title{
     font-weight: 300;
   }
-  .details__data,
-  .details__chart{
+  .detail__data,
+  .detail__chart{
     padding: 20px 24px;
   }
   .select-wrapper{
@@ -210,7 +226,7 @@ export default {
     right: 20px;
     top: calc(35vh - 35px);
   }
-  .details__canvas{
+  .detail__canvas{
     width: 100%;
     height: calc(65vh - 265px);
   }
