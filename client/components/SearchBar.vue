@@ -26,7 +26,7 @@ import VueLocalStorage from 'vue-localstorage'
 Vue.use(VueLocalStorage)
 
 const centerMarkerImg = require('../assets/img/center-marker.png')
-const destinationMarkerImg = require('../assets/img/destination.png')
+const destinationMarkerImg = require('../assets/img/destination-marker.png')
 
 export default {
   props:{

@@ -51,7 +51,7 @@ Vue.use(VueLocalStorage)
 const activeMarkerImg = require('../assets/img/active-marker.png')
 const inactiveMarkerImg = require('../assets/img/inactive-marker.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
-const destinationMarkerImg = require('../assets/img/destination.png')
+const destinationMarkerImg = require('../assets/img/destination-marker.png')
 
 export default {
   components: {
@@ -350,30 +350,57 @@ export default {
 
 <style>
   .direction__bar{
-    left: 75px;
+    left: 70px;
     height: 44px;
     background: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     line-height: 44px;
     font-size: 14px;
   }
+
   .direction__label{
     top: 90px;
-    padding: 0 10px;
-    width: calc(100% - 115px);
+    padding: 0 10px 0 30px;
+    width: calc(100% - 130px);
+
+  }
+  .direction__label::before{
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 10px;
+    height: 44px;
+    width: 14px;
+    background: url('../assets/img/destination.png') no-repeat center center;
   }
 
   .direction__start-point{
     top: 35px;
     display: flex;
-    width: calc(100% - 95px);
-
+    width: calc(100% - 90px);
   }
 
   .direction__input{
     width: calc(100% - 64px);
-    padding: 0 10px;
+    padding: 0 10px 0 30px;
     font-size: 14px;
   }
 
+  .direction__start-point::before{
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 10px;
+    height: 44px;
+    width: 14px;
+    background: url('../assets/img/start-point.png') no-repeat center center;
+  }
+  .pac-container{
+    width: calc(100% - 90px) !important;
+    left: 70px !important;
+    margin-left: inherit !important;
+    margin-right: inherit !important;
+  }
 </style>

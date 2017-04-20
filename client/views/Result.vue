@@ -137,7 +137,6 @@ export default {
       this.$refs.searchbar.existEntering()
     },
     showDetail(index, marker){
-      console.log(this.$localStorage.get('geoLocation'))
       var lastIndex = this.markers.length - 1
       if(index !== lastIndex){
         var lat = marker.position.lat

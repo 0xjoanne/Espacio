@@ -60,7 +60,7 @@ export default {
 
 <style>
   .action__btns{
-    right: 25px;
+    right: 20px;
     bottom: 35px;
     display: flex;
     flex-direction: column;

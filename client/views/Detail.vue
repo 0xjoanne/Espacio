@@ -125,11 +125,7 @@ export default {
       }
     }
   },
-  created(){
-    console.log(this.$localStorage.get('geoLocation'))
-  },
   mounted(){
-
     var latLng = {
       lat: Number(this.$route.query.lat),
       lng: Number(this.$route.query.lng)
