@@ -32,4 +32,16 @@
   .position-absolute{
     position: absolute;
   }
+  ::-webkit-input-placeholder { /* Chrome */
+    color: #bbb;
+  }
+  :-ms-input-placeholder { /* IE 10+ */
+    color: #bbb;
+  }
+  ::-moz-placeholder { /* Firefox 19+ */
+    color: #bbb;
+  }
+  :-moz-placeholder { /* Firefox 4 - 18 */
+    color: #bbb;
+  }
 </style>

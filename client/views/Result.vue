@@ -19,7 +19,7 @@
       ></gmap-marker>
     </gmap-map>
 
-    <action-btns @get-user-location="getUserLocation" :is-show="true"></action-btns>
+    <action-btns @get-user-location="getUserLocation"></action-btns>
 
     <search-bar class="position-absolute" @on-close="onClose" ref="searchbar" :label-content="userAddress" @update-searchbar-label="updateSearchbarLabel"></search-bar>
 
@@ -54,12 +54,11 @@ Vue.use(VueGoogleMaps, {
 
 export default {
   localStorage:{
-    userLocation: {
-      type: Object,
-      default: {
-        lat: 43.729159,
-        lng: -79.606545
-      }
+    geoLocation: {
+      type: Object
+    },
+    destination: {
+      type: Object
     }
   },
   components: {
@@ -135,8 +134,10 @@ export default {
         this.$refs.searchbar.isEntering = false
       }
       this.showMask = false
+      this.$refs.searchbar.existEntering()
     },
     showDetail(index, marker){
+      console.log(this.$localStorage.get('geoLocation'))
       var lastIndex = this.markers.length - 1
       if(index !== lastIndex){
         var lat = marker.position.lat
@@ -156,15 +157,16 @@ export default {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       }
-      this.updateSearchbarLabel(this.latLng)
       this.center = this.latLng
-      this.$localStorage.set('userLocation', this.latLng)
+      this.$localStorage.set('geoLocation', this.latLng)
       this.addNewMarker(this.latLng)
     },
     updateUserMarker(){
-      let currentLocation = this.$localStorage.get('userLocation')
-      this.center = currentLocation
-      this.addNewMarker(currentLocation)
+      let currentLocation = this.$localStorage.get('geoLocation')
+      if(!this.isEmptyObj(currentLocation)){
+        this.center = currentLocation
+        this.addNewMarker(currentLocation)
+      }
     },
     addNewMarker(currentLocation){
       var userLocationMarker = {
@@ -192,6 +194,13 @@ export default {
           self.userAddress = "Your Current Location"
         }
       })
+    },
+    isEmptyObj(obj){
+      for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+          return false;
+      }
+      return true;
     }
   },
   watch:{
@@ -226,6 +235,7 @@ export default {
       this.getUserLocation()
     }else if(query === "enterLocation"){
       this.$refs.searchbar.isEntering = true
+      this.$localStorage.set('geoLocation', {})
     }else{
       this.updateUserMarker()
     }

@@ -62,11 +62,9 @@
         <bar-chart class="detail__canvas"></bar-chart>
       </div>
     </div>
-    <router-link to="/result" class="back-btn position-absolute">
-    </router-link>
 
-    <!-- <router-link to="/result?action=getDirection" class="direction-btn position-absolute">
-    </router-link> -->
+    <button type="button" name="button" class="back-btn position-absolute" @click="backToPrev"></button>
+
     <button type="button" name="button" class="direction-btn position-absolute" @click="getDirection"></button>
   </div>
 </template>
@@ -103,6 +101,9 @@ export default {
     }
   },
   methods:{
+    backToPrev(){
+      this.$router.push('/result')
+    },
     getDirection(){
       var query = this.$route.query
       this.$router.push('/direction?lat=' + query.lat + '&lng=' + query.lng)
@@ -124,7 +125,11 @@ export default {
       }
     }
   },
+  created(){
+    console.log(this.$localStorage.get('geoLocation'))
+  },
   mounted(){
+
     var latLng = {
       lat: Number(this.$route.query.lat),
       lng: Number(this.$route.query.lng)
@@ -213,11 +218,13 @@ export default {
     margin-right: 5px;
   }
   .back-btn{
-    height: 52px;
-    width: 52px;
-    background: url('../assets/img/back-btn.png') no-repeat center center;
+    width: 44px;
+    height: 44px;
+    background: white url('../assets/img/back.png') no-repeat center center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     top: 35px;
     left: 20px;
+    text-align: center;
   }
   .direction-btn{
     height: 70px;

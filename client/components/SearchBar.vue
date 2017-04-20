@@ -1,13 +1,19 @@
 <template>
   <div class="search-bar" :style="{zIndex: zIndex}">
-    <button type="button" name="button" class="searchbar__btn" @click="showSidebar">
-      <img :src="rightBtnSrc" alt="">
+
+    <button type="button" name="button" class="searchbar__btn" @click="existEntering" v-if="isEntering">
+      <img src="../assets/img/back.png" alt="">
     </button>
-    <label for="" v-if="!isEntering" class="searchbar__label searchbar__info" @click="changeLocation">{{ labelContent }}</label>
-    <gmap-autocomplete @place_changed="setPlace" class="searchbar__input searchbar__info" ref="input" @click.native="" v-else>
+
+    <button type="button" name="button" class="searchbar__btn " @click="showSidebar" v-else>
+      <img src="../assets/img/menu.png" alt="">
+    </button>
+
+    <gmap-autocomplete @place_changed="setPlace" class="searchbar__input searchbar__info" ref="input" @click.native="changeInput" @keyup.native="keyupInput">
     </gmap-autocomplete>
 
-    <button type="button" name="button" class="searchbar__btn" @click="clearInput">
+    <!-- show when type -->
+    <button type="button" name="button" class="searchbar__btn" @click="clearInput" v-show="isShowClearBtn" title="clear search">
       <img src="../assets/img/close.png" alt="">
     </button>
   </div>
@@ -19,9 +25,8 @@ import VueLocalStorage from 'vue-localstorage'
 
 Vue.use(VueLocalStorage)
 
-const menuImg = require('../assets/img/menu.png')
-const backImg = require('../assets/img/back.png')
 const centerMarkerImg = require('../assets/img/center-marker.png')
+const destinationMarkerImg = require('../assets/img/destination.png')
 
 export default {
   props:{
@@ -33,15 +38,13 @@ export default {
   data(){
     return{
       latLng: {},
-      rightBtnSrc: menuImg,
       isEntering: false,
-      zIndex: 0
+      zIndex: 0,
+      isShowClearBtn: false,
+      destinationAddress: null
     }
   },
   methods:{
-    changeLocation(){
-      this.isEntering = true
-    },
     showSidebar(){
       if(!this.isEntering){
         this.$parent.showMask = true
@@ -50,14 +53,37 @@ export default {
         this.isEntering = false
       }
     },
+    existEntering(){
+      this.isEntering = false
+      this.$refs.input.$el.value = this.destinationAddress
+    },
     clearInput(){
-      if(this.isEntering){
-        this.$refs.input.$el.value = ''
+      this.$refs.input.$el.value = ''
+      this.isShowClearBtn = false
+      this.isEntering = true
+    },
+    changeInput(){
+      if(this.$refs.input.$el.value === ''){
+        this.isShowClearBtn = false
       }else{
-        this.isEntering = true
+        this.isShowClearBtn = true
+      }
+      this.isEntering = true
+    },
+    keyupInput(){
+      if(this.$refs.input.$el.value !== ''){
+        this.isShowClearBtn = true
+      }else{
+        this.isShowClearBtn = false
       }
     },
+    placeCursor(){
+      var val = this.$refs.input.$el.value
+      this.$refs.input.$el.value = ""
+      this.$refs.input.$el.value = val
+    },
     setPlace(place){
+      this.destinationAddress = this.$refs.input.$el.value
       this.isEntering = false
       this.latLng = {
         lat: place.geometry.location.lat(),
@@ -65,28 +91,27 @@ export default {
       }
       this.$parent.center = this.latLng
       this.$emit('update-searchbar-label', this.latLng)
-      var userLocation = {
+      var destination = {
         position: this.latLng,
-        icon: centerMarkerImg,
+        icon: destinationMarkerImg,
         clickable: false,
-        title: "user"
+        title: "destination"
       }
       var markers = this.$parent.markers
-      if(markers[markers.length - 1].title === "user"){
+      if(markers[markers.length - 1].title === "destination"){
         markers.splice(-1,1)
       }
-      markers.push(userLocation)
-      this.$localStorage.set('userLocation', this.latLng)
+      markers.push(destination)
+      this.$localStorage.set('destination', this.latLng)
+
     }
   },
   watch: {
     isEntering(val){
       if(val){
-        this.rightBtnSrc = backImg
         this.$parent.showMask = true
         this.zIndex = 9
       }else{
-        this.rightBtnSrc = menuImg
         this.$parent.showMask = false
         this.zIndex = 0
       }
@@ -107,10 +132,10 @@ export default {
     display: flex;
   }
   .searchbar__info{
-    width: calc(100% - 88px);
-    height: 44px;
+    width: calc(100% - 98px);
+    height: 42px;
     font-size: 14px;
-    padding: 0 10px;
+    padding: 0 5px;
   }
   .searchbar__label{
     line-height: 44px;
@@ -121,5 +146,6 @@ export default {
   .searchbar__btn{
     width: 44px;
     height: 44px;
+    display: block;
   }
 </style>
