@@ -216,10 +216,29 @@ export default {
         }
         marker.setLabel(label)
       }
+    },
+    parkingMockLeft(val){
+      if(this.$refs.map.$children[1].$markerObject){
+        var marker = this.$refs.map.$children[1].$markerObject
+        var label = marker.getLabel()
+        if(val === 0){
+          marker.icon = inactiveMarkerImg
+          label.text = ' '
+        }else{
+          marker.icon = activeMarkerImg
+          label.text = val+''
+        }
+        marker.setLabel(label)
+      }
     }
   },
   computed:{
     parkingLeft(){
+      if(this.$store.state.parkingMock){
+        return this.$store.state.parking.left
+      }
+    },
+    parkingMockLeft(){
       if(this.$store.state.parkingMock){
         return this.$store.state.parkingMock.left
       }
@@ -229,6 +248,7 @@ export default {
     this.createMarkers()
   },
   mounted(){
+    console.log(this.$store.state.parkingMock)
     var query = this.$route.query.action
     if(query === "getUserLocation") {
       this.getUserLocation()
