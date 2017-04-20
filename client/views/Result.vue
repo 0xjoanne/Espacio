@@ -162,7 +162,7 @@ export default {
     },
     updateUserMarker(){
       let currentLocation = this.$localStorage.get('geoLocation')
-      if(!this.isEmptyObj(currentLocation)){
+      if(!this.isEmptyObj(currentLocation)  || currentLocation === "{}"){
         this.center = currentLocation
         this.addNewMarker(currentLocation)
       }

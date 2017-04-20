@@ -200,9 +200,9 @@ export default {
         travelMode: 'DRIVING'
       }, function(response, status) {
         if (status === 'OK') {
-          self.directionsDisplay.setDirections(response);
+          self.directionsDisplay.setDirections(response)
         } else {
-          window.alert('Directions request failed due to ' + status);
+          console.log('Directions request failed due to ' + status)
         }
       })
 
@@ -233,7 +233,7 @@ export default {
 
       // create user location marker
       let currentLocation = this.$localStorage.get('geoLocation')
-      if(this.isEmptyObj(currentLocation)){
+      if(this.isEmptyObj(currentLocation) || currentLocation === "{}"){
 
       }else{
         if(typeof currentLocation !== 'object'){
@@ -320,7 +320,7 @@ export default {
   },
   mounted(){
     var geoLocation = this.$localStorage.get('geoLocation')
-    if(this.isEmptyObj(geoLocation)){
+    if(this.isEmptyObj(geoLocation) || geoLocation === "{}"){
       this.isShowClearBtn = false
       this.center = this.parkingCoords
       const _this = this
