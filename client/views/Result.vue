@@ -234,7 +234,7 @@ export default {
   },
   computed:{
     parkingLeft(){
-      if(this.$store.state.parkingMock){
+      if(this.$store.state.parking){
         return this.$store.state.parking.left
       }
     },
