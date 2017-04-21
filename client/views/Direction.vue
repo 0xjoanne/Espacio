@@ -79,7 +79,6 @@ export default {
       markers: [],
       parkingCoords: {},
       parkingAddress: null,
-      directionsService: null,
       directionsDisplay: null,
       isShowClearBtn: true,
       showMask: false,
@@ -122,7 +121,10 @@ export default {
         lng: position.coords.longitude
       }
       this.updateStartPointInput(latLng)
-      this.directionsDisplay.setMap(null)
+      if(this.directionsDisplay != null){
+        this.directionsDisplay.setMap(null)
+        this.directionsDisplay = null
+      }
       this.getDirection(latLng)
       this.$localStorage.set('geoLocation', latLng)
 
@@ -171,15 +173,15 @@ export default {
         title: "destination"
       }
       this.markers.push(startPoint)
-      if(this.destinationDisplay){
+      if(this.directionsDisplay != null){
         this.directionsDisplay.setMap(null)
+        this.directionsDisplay = null
       }
-
       this.getDirection(latLng)
 
     },
     getDirection(startPoint){
-      this.directionsService = new google.maps.DirectionsService
+      var directionsService = new google.maps.DirectionsService
       this.directionsDisplay = new google.maps.DirectionsRenderer({
         suppressMarkers: true,
         polylineOptions: {
@@ -194,7 +196,7 @@ export default {
       var start = new google.maps.LatLng(startPoint.lat, startPoint.lng)
       var end = new google.maps.LatLng(this.parkingCoords.lat, this.parkingCoords.lng)
       var self = this
-      this.directionsService.route({
+      directionsService.route({
         origin: start,
         destination: end,
         travelMode: 'DRIVING'
@@ -221,7 +223,7 @@ export default {
         position: {lat: this.parkingCoords.lat, lng: this.parkingCoords.lng},
         icon: inactiveMarkerImg,
         label: {
-          text: '0',
+          text: ' ',
           color: "white",
           fontWeight: "700",
           fontSize: "24px",
@@ -317,6 +319,7 @@ export default {
   },
   created(){
     this.createMarkers()
+    document.getElementById('app').classList = ""
     document.getElementById('app').classList.add('direction-page')
   },
   mounted(){

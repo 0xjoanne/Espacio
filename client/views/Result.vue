@@ -246,6 +246,7 @@ export default {
   },
   created(){
     this.createMarkers()
+    document.getElementById('app').classList = ""
     document.getElementById('app').classList.add('result-page')
   },
   mounted(){
