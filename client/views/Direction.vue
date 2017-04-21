@@ -317,6 +317,7 @@ export default {
   },
   created(){
     this.createMarkers()
+    document.getElementById('app').classList.add('direction-page')
   },
   mounted(){
     var geoLocation = this.$localStorage.get('geoLocation')
@@ -397,7 +398,8 @@ export default {
     width: 14px;
     background: url('../assets/img/start-point.png') no-repeat center center;
   }
-  .pac-container{
+
+  .direction-page ~ .pac-container{
     width: calc(100% - 90px) !important;
     left: 70px !important;
     margin-left: inherit !important;

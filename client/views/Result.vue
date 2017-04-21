@@ -246,9 +246,9 @@ export default {
   },
   created(){
     this.createMarkers()
+    document.getElementById('app').classList.add('result-page')
   },
   mounted(){
-    console.log(this.$store.state.parkingMock)
     var query = this.$route.query.action
     if(query === "getUserLocation") {
       this.getUserLocation()
@@ -296,7 +296,7 @@ export default {
     width: 70px;
     height: 70px;
   }
-  .pac-container{
+  .result-page ~ .pac-container{
     width: 88% !important;
     margin-left: auto;
     margin-right: auto;
