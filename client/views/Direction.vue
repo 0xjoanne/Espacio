@@ -317,6 +317,7 @@ export default {
   },
   created(){
     this.createMarkers()
+    document.getElementById('app').classList = ""
     document.getElementById('app').classList.add('direction-page')
   },
   mounted(){
