@@ -95,7 +95,7 @@ export default {
   methods:{
     createMarkers(){
       this.markers = [{
-        position: {lat: 43.732554, lng: -79.611481},
+        position: {lat: 43.648377, lng: -79.400819},
         icon: inactiveMarkerImg,
         label: {
           text: ' ',
@@ -106,7 +106,7 @@ export default {
         },
         title: "parking"
       },{
-        position: {lat: 43.730724, lng: -79.598520},
+        position: {lat: 43.649227, lng: -79.404215},
         icon: {
           url: activeMarkerImg
         },
@@ -119,7 +119,7 @@ export default {
         },
         title: "parking"
       },{
-        position: {lat: 43.720916, lng: -79.599413},
+        position: {lat: 43.645489, lng: -79.402804},
         icon: inactiveMarkerImg,
         title: "parking"
       }]
